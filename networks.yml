@@ -1,0 +1,21 @@
+docker network create \
+--driver=bridge \
+--subnet=10.0.0.0/16 \
+--ip-range=10.0.1.0/24 \
+--gateway=10.0.1.254 \
+noria_bridge
+
+docker run -d \
+--name noria_mysql \
+--network=noria_bridge \
+-e MYSQL_ROOT_PASSWORD=pass_12345 \
+-v noria_mysql-data:/var/lib/mysql \
+-p 3307:3306 \
+mysql:8.0
+
+docker run -d \
+--name noria_mysql-admin \
+--network=noria_bridge \
+-e PMA_HOST=noria_mysql \
+-p 8100:80 \
+phpmyadmin

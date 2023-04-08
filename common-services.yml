@@ -1,0 +1,62 @@
+version: '3.9'
+services:
+  noria_mysql:
+    image: mysql:8.0
+    container_name: noria_mysql
+    environment:
+      MYSQL_DATABASE: noria_sandbox
+      MYSQL_ROOT_PASSWORD: pass_12345
+      MYSQL_PASSWORD: pass_12345
+      MYSQL_USER: noria_admin
+      SERVICE_TAGS: dev
+      SERVICE_NAME: noria_mysql
+    ports:
+      - '3406:3306'
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - noria_network
+  noria_db_admin:
+    image: phpmyadmin
+    container_name: noria_db_admin
+    # links:
+    #   - noria_mysql
+    environment:
+      PMA_HOST: noria_mysql
+      PMA_PORT: 3306
+    #   PMA_ARBITRARY: 1
+    ports:
+      - '8081:80'
+    networks:
+      - noria_network
+
+  noria_redis:
+    image: redis:7.0
+    container_name: noria_redis
+    ports:
+      - '6479:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - noria_network
+
+  noria_mailhog:
+    image: mailhog/mailhog
+    container_name: noria_mailhog
+    ports:
+      - '8125:8025'
+      - '1125:1025'
+    networks:
+      - noria_network
+
+volumes:
+  mysql-data:
+  redis-data:
+networks:
+  noria_network:
+    driver: bridge
+    name: noria_network
+    ipam:
+      config:
+        - subnet: 10.10.0.0/16
+          gateway: 10.10.0.1
